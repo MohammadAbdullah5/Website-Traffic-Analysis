@@ -1,5 +1,5 @@
-import  express  from "express";
-import { GetTop3Ranks } from "../Func";
+const express = require("express");
+const { GetTop3Ranks } = require("../Func");
 
 const router = express.Router();
 
@@ -9,4 +9,4 @@ router.get('/api/getRanks' , (req , res) =>{
 })
 
 
-export default router;
+module.exports = router;

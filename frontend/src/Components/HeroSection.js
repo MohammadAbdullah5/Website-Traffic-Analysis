@@ -33,12 +33,14 @@ const HeroSection = () => {
                   class="w-full p-3 rounded-md rounded-r-none border border-2 border-gray-300 placeholder-current dark:bg-gray-500  dark:text-gray-300 dark:border-none "
                   placeholder="Enter URL"
                 />
+                <Link to={"/analysis"}>
                 <button
                   class="inline-flex items-center gap-2 bg-blue-700 text-white text-lg font-semibold py-3 px-6 rounded-r-md"
                  
                 >
-                  <Link to={"/analysis"}> <span>Find</span> </Link>
+                   <span>Find</span> 
                 </button>
+                </Link>
               </div>
             </div>
           </div>
