@@ -1,13 +1,13 @@
 const express = require("express")
 const sql = require("mssql")
 const router = require("./Controller/Routes/Router")
-
+const cors = require('cors');
 
 
 
 const app = express();
 app.use(express.json());
-
+app.use(cors());
 app.use("/" , router);
 
 

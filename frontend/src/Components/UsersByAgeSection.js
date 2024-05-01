@@ -1,12 +1,12 @@
-import React from "react";
+import React from 'react'
 
-const VisitsSection = () => {
+const UsersByAgeSection = () => {
   return (
     <>
-      <div className="flex justify-center items-start pt-8">
+        <div className="flex justify-center items-start pt-8">
         <div className="w-full sm:w-3/4 bg-white shadow-lg rounded-lg">
-          <div className="flex flex-col justify-center mt-2 ml-4">
-            <h4 className="font-bold text-2xl">Total Visits per Month</h4>
+          <div className="flex flex-col justify-center ml-4">
+            <h4 className="font-bold text-2xl">Users by Age Category</h4>
             <br/>
           </div>
           <div className="flex justify-center"> {/* Centering the iframe */}
@@ -20,11 +20,12 @@ const VisitsSection = () => {
               allow="fullscreen; accelerometer; gyroscope; magnetometer; vr"
             ></iframe>
           </div>
-          <p className="text-center">This is the number of users per month</p> {/* Centering the text */}
+          <p className="text-center">This is the number of users by age</p> 
         </div>
       </div>
+      
     </>
-  );
-};
+  )
+}
 
-export default VisitsSection;
+export default UsersByAgeSection

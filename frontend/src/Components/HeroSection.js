@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-const HeroSection = () => {
+
+const HeroSection = ({searchText , setSearchText}) => {
   const navigate = useNavigate();
-  const handleSearchClick = () => {
-    navigate("/analysis"); // Navigate to the '/analysis' route
+
+  const handleInputChange = (e) => {
+    setSearchText(e.target.value);
   };
+
+
   return (
     <>
       <div class="dark:bg-gray-800">
@@ -32,15 +36,21 @@ const HeroSection = () => {
                   name="q"
                   class="w-full p-3 rounded-md rounded-r-none border border-2 border-gray-300 placeholder-current dark:bg-gray-500  dark:text-gray-300 dark:border-none "
                   placeholder="Enter URL"
+                  
+                  onChange={handleInputChange}
+                   // Update search query state on input change
                 />
-                <Link to={"/analysis"}>
-                <button
-                  class="inline-flex items-center gap-2 bg-blue-700 text-white text-lg font-semibold py-3 px-6 rounded-r-md"
-                 
-                >
-                   <span>Find</span> 
-                </button>
-                </Link>
+                {searchText.trim() !== "" ? (
+                  <Link to="/analysis">
+                    <button className="inline-flex items-center gap-2 bg-blue-700 text-white text-lg font-semibold py-3 px-6 rounded-r-md">
+                      <span>Find</span>
+                    </button>
+                  </Link>
+                ) : (
+                  <button className="inline-flex items-center gap-2 bg-gray-400 text-white text-lg font-semibold py-3 px-6 rounded-r-md cursor-not-allowed" disabled>
+                    <span>Find</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
