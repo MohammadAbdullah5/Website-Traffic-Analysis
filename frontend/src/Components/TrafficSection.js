@@ -1,17 +1,7 @@
 import React, { useEffect, useState } from "react";
 
-
-const TrafficSection = ({searchText}) => {
-  const [rankData, setRankData] = useState(-99);
-  const [visits, setVisits] = useState(-99);
-  const [bounce, setBounce] = useState(-99);
-  const [pagePerVisit, setpagePerVisit] = useState(-99);
-  const [industryRank, setindustryRank] = useState(-99);
-  const [averageDuration, setaverageDuration] = useState(-99);
-  
-
-
-
+const TrafficSection = ({ searchText }) => {
+  const [Data, setData] = useState(-99);
 
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -19,18 +9,18 @@ const TrafficSection = ({searchText}) => {
   const webURL = searchText;
 
   useEffect(() => {
-    const fetchRankData = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
       try {
         const response = await fetch(
-          `http://localhost:5000/api/getRank?webURL=${webURL}`
+          `http://localhost:5000/api/getData?webURL=${webURL}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch rank data");
         }
         const data = await response.json();
 
-        setRankData(data);
+        setData(data);
         setIsLoading(false);
       } catch (error) {
         setError(error.message);
@@ -38,135 +28,42 @@ const TrafficSection = ({searchText}) => {
       }
     };
 
-    fetchRankData();
+    fetchData();
   }, []);
 
-  useEffect(() => {
-    const fetchWebVisits = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:5000/api/getWebsiteVisits?webURL=${webURL}`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch rank data");
-        }
-        const data = await response.json();
+  const rank = Data && Data.length > 0 ? Data[0].GlobalRank : null;
+  const webVisits = Data && Data.length > 0 ? Data[0].WebsiteVisits : null;
+  const bounceRate = Data && Data.length > 0 ? Data[0].BounceRate : null;
+  const pagesVisit = Data && Data.length > 0 ? Data[0].PagePerVisit : null;
+  const IndustryRank = Data && Data.length > 0 ? Data[0].CategoryRank : null;
+  const avgDuration =
+    Data && Data.length > 0 ? Data[0].AverageVisitDuration : null;
 
-        setVisits(data);
-      } catch (error) {
-        setError(error.message);
-      }
-    };
-
-    fetchWebVisits();
-  }, []);
-
-  useEffect(() => {
-    const fetchBounceRate = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:5000/api/getBounceRate?webURL=${webURL}`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch rank data");
-        }
-        const data = await response.json();
-
-        setBounce(data);
-      } catch (error) {
-        setError(error.message);
-      }
-    };
-
-    fetchBounceRate();
-  }, []);
-
-  useEffect(() => {
-    const fetchPageVisits = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:5000/api/getPagePerVisits?webURL=${webURL}`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch rank data");
-        }
-        const data = await response.json();
-
-        setpagePerVisit(data);
-      } catch (error) {
-        setError(error.message);
-      }
-    };
-
-    fetchPageVisits();
-  }, []);
-
-
-  useEffect(() => {
-    const fetchIndustryRank = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:5000/api/getIndustryRank?webURL=${webURL}`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch rank data");
-        }
-        const data = await response.json();
-
-        setindustryRank(data);
-      } catch (error) {
-        setError(error.message);
-      }
-    };
-
-    fetchIndustryRank();
-  }, []);
-
-  useEffect(() => {
-    const fetchAverageDuration = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:5000/api/getAverageDuration?webURL=${webURL}`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch rank data");
-        }
-        const data = await response.json();
-
-        setaverageDuration(data);
-      } catch (error) {
-        setError(error.message);
-      }
-    };
-
-    fetchAverageDuration();
-  }, []);
-
-  
-
-
-
-
-  const rank = rankData && rankData.length > 0 ? rankData[0].GlobalRank : null;
-  const webVisits =visits && visits.length > 0 ? visits[0].WebsiteVisits : null;
-  const bounceRate = bounce && bounce.length > 0 ? bounce[0].BounceRate : null;
-  const pagesVisit =pagePerVisit && pagePerVisit.length > 0? pagePerVisit[0].PagePerVisit: null;
-  const IndustryRank = industryRank && industryRank.length > 0? industryRank[0].CategoryRank: null;
-  const avgDuration = averageDuration && averageDuration.length > 0? averageDuration[0].AverageVisitDuration: null;
-  
-
-
-  
   const date = new Date(avgDuration);
 
+  const hours = ("0" + date.getUTCHours()).slice(-2); // Ensure leading zero if needed
+  const minutes = ("0" + date.getUTCMinutes()).slice(-2);
+  const seconds = ("0" + date.getUTCSeconds()).slice(-2);
 
-const hours = ('0' + date.getUTCHours()).slice(-2); // Ensure leading zero if needed
-const minutes = ('0' + date.getUTCMinutes()).slice(-2);
-const seconds = ('0' + date.getUTCSeconds()).slice(-2);
+  const avgTime = `${hours}:${minutes}:${seconds}`;
 
-const avgTime = `${hours}:${minutes}:${seconds}`;
+  function formatLargeNumber(number) {
+    // Define suffixes for different scales
+    const suffixes = ["", "K", "M", "B", "T"];
+    // Determine the scale (K, M, B, etc.)
+    const scale = Math.floor(Math.log10(number) / 3);
+    // Calculate the scaled number
+    const scaledNumber = number / Math.pow(10, scale * 3);
+    // Format the number with one decimal place
+    const formattedNumber = scaledNumber.toFixed(1);
+    // Append the scale suffix
+    return formattedNumber + suffixes[scale];
+}
+
+const webVisitsUpdated = formatLargeNumber(webVisits);
 
 
+  
 
   console.log(rank);
   console.log(webVisits);
@@ -174,145 +71,90 @@ const avgTime = `${hours}:${minutes}:${seconds}`;
   console.log(pagesVisit);
   console.log(IndustryRank);
   console.log(avgTime);
-  
-
-
 
   return (
     <>
-      {/*Total visits and global rank*/}
-      <section className="my-8 sm:my-5 grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 px-6 sm:px-4">
-        <div className="flex flex-col justify-center">
-          <div className="flex flex-col h-full shadow justify-between rounded-lg pb-8 pt-6 px-6 sm:p-8 bg-gray-50">
-            <div>
-              <h4 className="font-bold text-2xl leading-tight">Total Visits</h4>
-              <div className="my-4">
-                <p>{webVisits}</p>
-              </div>
-            </div>
-            <div></div>
+      <div
+        aria-hidden="true"
+        class="absolute inset-0 h-max w-full m-auto grid grid-cols-2 -space-x-52 opacity-20"
+      >
+        <div class="blur-[106px] h-56 bg-gradient-to-br to-purple-400 from-blue-700"></div>
+        <div class="blur-[106px] h-32 bg-gradient-to-r from-cyan-400 to-indigo-600"></div>
+      </div>
+      <div class="max-w-7xl mx-auto px-6 md:px-12 xl:px-6 mt-10">
+        <div class="mb-10 space-y-4 px-6 md:px-0 mt-10">
+          <h2 class="text-center text-2xl font-bold text-white sm:text-3xl md:text-4xl">
+            Traffic Analysis
+          </h2>
+        </div>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+          <div class="flex flex-col items-center aspect-auto p-4 sm:p-8 border rounded-3xl bg-gray-800 border-gray-700 shadow-gray-600/10 shadow-none m-2 flex-1 max-w-md">
+            <h2 class="text-lg sm:text-xl font-medium text-white mb-2">
+              Total Visits
+            </h2>
+            <p class="text-lg sm:text-xl text-center mb-8 mt-4 text-gray-400">
+              <span class="text-3xl sm:text-4xl font-bold text-white">
+                {webVisitsUpdated}
+              </span>
+            </p>
+          </div>
+          <div class="flex flex-col items-center aspect-auto p-4 sm:p-8 border rounded-3xl bg-gray-800 border-gray-700 shadow-gray-600/10 shadow-none m-2 flex-1 max-w-md">
+            <h2 class="text-lg sm:text-xl font-medium text-white mb-2">
+              Global Rank
+            </h2>
+            <p class="text-lg sm:text-xl text-center mb-8 mt-4 text-gray-400">
+              <span class="text-3xl sm:text-4xl font-bold text-white">
+                {rank}
+              </span>
+            </p>
+          </div>
+          <div class="flex flex-col items-center aspect-auto p-4 sm:p-8 border rounded-3xl bg-gray-800 border-gray-700 shadow-gray-600/10 shadow-none m-2 flex-1 max-w-md">
+            <h2 class="text-lg sm:text-xl font-medium text-white mb-2">
+              Industry Rank
+            </h2>
+            <p class="text-lg sm:text-xl text-center mb-8 mt-4 text-gray-400">
+              <span class="text-3xl sm:text-4xl font-bold text-white">
+                {IndustryRank}
+              </span>
+            </p>
           </div>
         </div>
-        <div className="flex flex-col justify-center">
-          <div className="flex flex-col h-full shadow justify-between rounded-lg pb-8 pt-6 px-6 sm:p-8 bg-gray-50">
-            <div>
-              <h4 className="font-bold text-2xl leading-tight">Global Rank</h4>
-              <div className="my-4">{rank}</div>
-            </div>
-            <div></div>
-          </div>
-        </div>
-      </section>
+      </div>
 
-      {/*Bounce Rate and Pages per visit*/}
-      <section className="my-8 sm:my-5 grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 px-6 sm:px-4">
-        <div className="flex flex-col justify-center">
-          <div className="flex flex-col h-full shadow justify-between rounded-lg pb-8 pt-6 px-6 sm:p-8 bg-gray-50">
-            <div>
-              <h4 className="font-bold text-2xl leading-tight">Bounce Rate</h4>
-              <div className="my-4">
-                <p>{bounceRate} %</p>
-              </div>
-            </div>
-            <div></div>
+      <div class="max-w-7xl mx-auto px-6 md:px-12 xl:px-6 mt-10">
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+          <div class="flex flex-col items-center aspect-auto p-4 sm:p-8 border rounded-3xl bg-gray-800 border-gray-700 shadow-gray-600/10 shadow-none m-2 flex-1 max-w-md">
+            <h2 class="text-lg sm:text-xl font-medium text-white mb-2">
+              Bounce Rate
+            </h2>
+            <p class="text-lg sm:text-xl text-center mb-8 mt-4 text-gray-400">
+              <span class="text-3xl sm:text-4xl font-bold text-white">
+                {bounceRate} %
+              </span>
+            </p>
+          </div>
+          <div class="flex flex-col items-center aspect-auto p-4 sm:p-8 border rounded-3xl bg-gray-800 border-gray-700 shadow-gray-600/10 shadow-none m-2 flex-1 max-w-md">
+            <h2 class="text-lg sm:text-xl font-medium text-white mb-2">
+              Average Time Duration
+            </h2>
+            <p class="text-lg sm:text-xl text-center mb-8 mt-4 text-gray-400">
+              <span class="text-3xl sm:text-4xl font-bold text-white">
+                {avgTime}
+              </span>
+            </p>
+          </div>
+          <div class="flex flex-col items-center aspect-auto p-4 sm:p-8 border rounded-3xl bg-gray-800 border-gray-700 shadow-gray-600/10 shadow-none m-2 flex-1 max-w-md">
+            <h2 class="text-lg sm:text-xl font-medium text-white mb-2">
+              Pages Per Visit
+            </h2>
+            <p class="text-lg sm:text-xl text-center mb-8 mt-4 text-gray-400">
+              <span class="text-3xl sm:text-4xl font-bold text-white">
+                {pagesVisit}
+              </span>
+            </p>
           </div>
         </div>
-        <div className="flex flex-col justify-center">
-          <div className="flex flex-col h-full shadow justify-between rounded-lg pb-8 pt-6 px-6 sm:p-8 bg-gray-50">
-            <div>
-              <h4 className="font-bold text-2xl leading-tight">
-                Pages per vists
-              </h4>
-              <div className="my-4">
-                <p>{pagesVisit}</p>
-              </div>
-            </div>
-            <div></div>
-          </div>
-        </div>
-      </section>
-
-      {/*Industry Rank and Average Duration*/}
-      <section className="my-8 sm:my-5 grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 px-6 sm:px-4">
-        <div className="flex flex-col justify-center">
-          <div className="flex flex-col h-full shadow justify-between rounded-lg pb-8 pt-6 px-6 sm:p-8 bg-gray-50">
-            <div>
-              <h4 className="font-bold text-2xl leading-tight">
-                Industry Rank
-              </h4>
-              <div className="my-4">
-                <p>{IndustryRank}</p>
-              </div>
-            </div>
-            <div></div>
-          </div>
-        </div>
-        <div className="flex flex-col justify-center">
-          <div className="flex flex-col h-full shadow justify-between rounded-lg pb-8 pt-6 px-6 sm:p-8 bg-gray-50">
-            <div>
-              <h4 className="font-bold text-2xl leading-tight">
-                Average Duration
-              </h4>
-              <div className="my-4">
-                <p>{avgTime}</p>
-              </div>
-            </div>
-            <div></div>
-          </div>
-        </div>
-      </section>
-
-      {/*Device Distribution and Gender distribution*/}
-      <section className="my-8 sm:my-5 grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 px-6 sm:px-4">
-        <div className="flex flex-col justify-center">
-          <div className="flex flex-col h-full shadow justify-between rounded-lg pb-8 pt-6 px-6 sm:p-8 bg-gray-50">
-            <div>
-              <h4 className="font-bold text-2xl leading-tight">
-                Device Distribution
-              </h4>
-              <div className="my-4">
-                <div className="w-full overflow-hidden">
-                  <div className="aspect-w-16 aspect-h-9">
-                    <iframe
-                      title="Home Task"
-                      className="w-full h-full"
-                      src="https://app.powerbi.com/reportEmbed?reportId=292f84ee-87c0-4585-9296-254f3035115f&autoAuth=true&ctid=1d7aa2e9-3a1a-4af4-9873-31cc6674969e&navContentPaneEnabled=false"
-                      frameBorder="0"
-                      allowFullScreen={true}
-                      allow="fullscreen; accelerometer; gyroscope; magnetometer; vr"
-                    ></iframe>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div></div>
-          </div>
-        </div>
-        <div className="flex flex-col justify-center">
-          <div className="flex flex-col h-full shadow justify-between rounded-lg pb-8 pt-6 px-6 sm:p-8 bg-gray-50">
-            <div>
-              <h4 className="font-bold text-2xl leading-tight">
-                Gender Distribution{" "}
-              </h4>
-              <div className="my-4">
-                <div className="w-full overflow-hidden">
-                  <div className="aspect-w-16 aspect-h-9">
-                    <iframe
-                      title="Home Task"
-                      className="w-full h-full"
-                      src="https://app.powerbi.com/reportEmbed?reportId=292f84ee-87c0-4585-9296-254f3035115f&autoAuth=true&ctid=1d7aa2e9-3a1a-4af4-9873-31cc6674969e&navContentPaneEnabled=false"
-                      frameBorder="0"
-                      allowFullScreen={true}
-                      allow="fullscreen; accelerometer; gyroscope; magnetometer; vr"
-                    ></iframe>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div></div>
-          </div>
-        </div>
-      </section>
+      </div>
     </>
   );
 };

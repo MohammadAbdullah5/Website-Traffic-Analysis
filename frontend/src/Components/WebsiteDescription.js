@@ -4,44 +4,26 @@ const WebsiteDescription = ({searchText}) => {
 
   const webURL = searchText;
 
-  const [name, setname] = useState(-99);
-  const [decs, setdesc] = useState(-99);
+  const [Data, setData] = useState(-99);
+
 
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchName = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:5000/api/getName?webURL=${webURL}`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch rank data");
-        }
-        const data = await response.json();
 
-        setname(data);
-      } catch (error) {
-        setError(error.message);
-      }
-    };
-
-    fetchName();
-  }, []);
 
   useEffect(() => {
     const fetchDescription = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/getDescription?webURL=${webURL}`
+          `http://localhost:5000/api/getData?webURL=${webURL}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch rank data");
         }
         const data = await response.json();
 
-        setdesc(data);
+        setData(data);
       } catch (error) {
         setError(error.message);
       }
@@ -53,8 +35,8 @@ const WebsiteDescription = ({searchText}) => {
 
 
 
-  const WebName = name && name.length > 0? name[0].WebsiteName: null;
-  const description = decs && decs.length > 0? decs[0].Description: null;
+  const WebName = Data && Data.length > 0? Data[0].WebsiteName: null;
+  const description = Data && Data.length > 0? Data[0].Description: null;
 
   console.log(WebName);
   console.log(description);

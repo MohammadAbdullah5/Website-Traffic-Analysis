@@ -5,18 +5,16 @@ import TrafficSection from "./TrafficSection";
 import VisistsSection from "./VisistsSection";
 import DemographicSection from "./DemographicSection";
 import UsersByAgeSection from "./UsersByAgeSection";
+import WebsiteTable from "./WebsiteTable";
 
-const AnalysisSection = ( {searchText} ) => {
+
+const AnalysisSection = ({ searchText }) => {
   return (
     <>
       <div class="dark:bg-gray-800">
         <div class="dark:bg-transparent">
           <WebsiteDescription searchText={searchText} />
           <TrafficSection searchText={searchText} />
-          <VisistsSection />
-          <DemographicSection/>
-          <UsersByAgeSection/>
-          
         </div>
       </div>
     </>
