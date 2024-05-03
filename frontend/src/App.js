@@ -12,6 +12,8 @@ import {
   Link
 } from "react-router-dom";
 import React, { useState } from "react";
+import WebsiteTable from './Components/Tables/WebsiteTable';
+import TableMenu from './Components/Tables/TableMenu';
 
 function App() {
   const [searchText, setSearchText] = useState("");
@@ -26,6 +28,12 @@ function App() {
             <Footer />
           </>} />
           <Route path="/analysis" element={<AnalysisSection searchText={searchText} />} />
+          <Route path="/tables" element={<TableMenu />} />
+
+
+        </Routes>
+        <Routes>
+        
         </Routes>
       </div>
     </Router>

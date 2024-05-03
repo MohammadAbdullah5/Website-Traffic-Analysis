@@ -5,7 +5,7 @@ import TrafficSection from "./TrafficSection";
 import VisistsSection from "./VisistsSection";
 import DemographicSection from "./DemographicSection";
 import UsersByAgeSection from "./UsersByAgeSection";
-import WebsiteTable from "./WebsiteTable";
+import WebsiteTable from "./Tables/WebsiteTable";
 
 
 const AnalysisSection = ({ searchText }) => {
@@ -15,6 +15,7 @@ const AnalysisSection = ({ searchText }) => {
         <div class="dark:bg-transparent">
           <WebsiteDescription searchText={searchText} />
           <TrafficSection searchText={searchText} />
+          
         </div>
       </div>
     </>
