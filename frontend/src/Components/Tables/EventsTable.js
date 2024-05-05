@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
@@ -7,7 +7,7 @@ const boxVariant = {
   hidden: { opacity: 0, scale: 0 },
 };
 
-const ReferrerTable = () => {
+const EventsTable = () => {
   const [data, setData] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,9 +27,7 @@ const ReferrerTable = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(
-          `http://localhost:5000/api/getRefferrerData`
-        );
+        const response = await fetch(`http://localhost:5000/api/getEventsData`);
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }
@@ -43,7 +41,20 @@ const ReferrerTable = () => {
     };
 
     fetchData();
-  }, []);
+  });
+
+  const formatDuration = (duration) => {
+    const date = new Date(duration);
+    const hours = ("0" + date.getUTCHours()).slice(-2);
+    const minutes = ("0" + date.getUTCMinutes()).slice(-2);
+    const seconds = ("0" + date.getUTCSeconds()).slice(-2);
+    return `${hours}:${minutes}:${seconds}`;
+  };
+
+  const formattedData = data.map((item) => ({
+    ...item,
+    EventTime: formatDuration(item.EventTime),
+  }));
 
   return (
     <motion.div
@@ -56,7 +67,7 @@ const ReferrerTable = () => {
     >
       <div className="mb-10 space-y-4 px-6 md:px-0">
         <h2 className="text-center text-2xl font-bold text-white sm:text-3xl md:text-4xl mt-10">
-          Referrer Table
+          Events Table
         </h2>
       </div>
       <div
@@ -74,51 +85,44 @@ const ReferrerTable = () => {
             >
               <table className="min-w-full text-left text-sm font-light text-surface dark:text-white">
                 <thead
-                  className="border-b border-neutral-200 font-medium dark:border-white/10"
+                  className="border-b border-neutral-200 font-medium dark:border-white/10 dark:bg-gray-900"
                   style={{ position: "sticky", top: "0" }}
                 >
                   <tr className="dark:bg-gray-900">
                     <th scope="col" className="px-5 py-4">
-                      Referrer Name
-                    </th>
-                    <th scope="col" className="px-5 py-4">
                       Website Name
                     </th>
                     <th scope="col" className="px-5 py-4">
-                      Referrer URL
-                    </th>
-
-                    <th scope="col" className="px-5 py-4">
-                      Referrer Type
+                      Page Name
                     </th>
                     <th scope="col" className="px-5 py-4">
-                      Referral Visits
+                      Page Section
                     </th>
                     <th scope="col" className="px-5 py-4">
-                      Traffic Count
+                      Event Time
+                    </th>
+                    <th scope="col" className="px-5 py-4">
+                      Event Type
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((referrer, index) => (
+                  {formattedData.map((event, index) => (
                     <tr key={index}>
                       <td className="whitespace-nowrap px-6 py-4">
-                        {referrer.ReferrerName}
+                        {event.WebsiteName}
                       </td>
                       <td className="whitespace-nowrap px-6 py-4">
-                        {referrer.WebsiteName}
+                        {event.PageName}
                       </td>
                       <td className="whitespace-nowrap px-6 py-4">
-                        {referrer.ReferrerURL}
+                        {event.SectionCategory}
                       </td>
                       <td className="whitespace-nowrap px-6 py-4">
-                        {referrer.ReferrerType}
+                        {event.EventTime}
                       </td>
                       <td className="whitespace-nowrap px-6 py-4">
-                        {referrer.ReferrerViews}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        {referrer.TrafficCount}
+                        {event.EventType}
                       </td>
                     </tr>
                   ))}
@@ -132,4 +136,4 @@ const ReferrerTable = () => {
   );
 };
 
-export default ReferrerTable;
+export default EventsTable;

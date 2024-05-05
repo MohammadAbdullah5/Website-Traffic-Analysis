@@ -2,27 +2,27 @@ import React , {useState,useEffect} from 'react'
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
+
 const boxVariant = {
   visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } },
   hidden: { opacity: 0, scale: 0 },
 };
 
-
-const PagesTable = () => {
+const SessionsTable = () => {
     const [data, setData] = useState([]);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
-  const control = useAnimation();
-  const [ref, inView] = useInView();
-
-  useEffect(() => {
-    if (inView) {
-      control.start("visible");
-    } else {
-      control.start("hidden");
-    }
-  }, [control, inView]);
+    const control = useAnimation();
+    const [ref, inView] = useInView();
+  
+    useEffect(() => {
+      if (inView) {
+        control.start("visible");
+      } else {
+        control.start("hidden");
+      }
+    }, [control, inView]);
 
  
     useEffect(() => {
@@ -30,7 +30,7 @@ const PagesTable = () => {
         setIsLoading(true);
         try {
           const response = await fetch(
-            `http://localhost:5000/api/getPagesData`
+            `http://localhost:5000/api/getSessionsData`
           );
           if (!response.ok) {
             throw new Error('Failed to fetch data');
@@ -45,7 +45,7 @@ const PagesTable = () => {
       };
   
       fetchData();
-  }, []);
+    });
   
     const formatDuration = (duration) => {
       const date = new Date(duration);
@@ -54,10 +54,23 @@ const PagesTable = () => {
       const seconds = ('0' + date.getUTCSeconds()).slice(-2);
       return `${hours}:${minutes}:${seconds}`;
     };
+
+    const formatDate = (duration) => {
+      const date = new Date(duration);
+      const year = date.getUTCFullYear();
+      const month = ("0" + (date.getUTCMonth() + 1)).slice(-2);
+      const day = ("0" + date.getUTCDate()).slice(-2);
+      
+      return `${year}-${month}-${day}`;
+  };
+
   
     const formattedData = data.map((item) => ({
       ...item,
-      TimeSpent: formatDuration(item.TimeSpent),
+      StartTime: formatDuration(item.StartTime),
+      EndTime: formatDuration(item.EndTime),
+      Date : formatDate(item.Date)
+
     }));
   
     
@@ -73,7 +86,7 @@ const PagesTable = () => {
     >
         <div className="mb-10 space-y-4 px-6 md:px-0">
           <h2 className="text-center text-2xl font-bold text-white sm:text-3xl md:text-4xl mt-10">
-            Pages Table
+            Sessions Table
           </h2>
         </div>
         <div className="overflow-x-auto sm:-mx-6 lg:-mx-8" style={{ overflowX: 'hidden' }}>
@@ -84,31 +97,45 @@ const PagesTable = () => {
                   <thead className="border-b border-neutral-200 font-medium dark:border-white/10 dark:bg-gray-900" style={{ position: 'sticky', top: '0' }}>
                     <tr className="dark:bg-gray-900">
                       <th scope="col" className="px-5 py-4">
-                      Website
+                      User Name
+                      </th>
+
+                      <th scope="col" className="px-5 py-4">
+                      Date
+                      </th>
+
+
+                      <th scope="col" className="px-5 py-4">
+                      Start Time
                       </th>
                       <th scope="col" className="px-5 py-4">
-                      Page Name
+                      End Time
                       </th>
                       <th scope="col" className="px-5 py-4">
-                      Page Type
+                      IP Address
                       </th>
                       <th scope="col" className="px-5 py-4">
-                      Page Views
+                      Device
                       </th>
+
                       <th scope="col" className="px-5 py-4">
-                      Time Spent
+                      Browser
                       </th>
                       
                     </tr>
                   </thead>
                   <tbody>
-                    {formattedData.map((page, index) => (
+                    {formattedData.map((session, index) => (
                       <tr key={index}>
-                        <td className="whitespace-nowrap px-6 py-4">{page.Website}</td>
-                        <td className="whitespace-nowrap px-6 py-4">{page.PageName}</td>
-                        <td className="whitespace-nowrap px-6 py-4">{page.PageType}</td>
-                        <td className="whitespace-nowrap px-6 py-4">{page.PageView}</td>
-                        <td className="whitespace-nowrap px-6 py-4">{page.Time_Spent}</td>
+                        <td className="whitespace-nowrap px-6 py-4">{session.UserName}</td>
+                        <td className="whitespace-nowrap px-6 py-4">{session.Date}</td>
+
+                        <td className="whitespace-nowrap px-6 py-4">{session.StartTime}</td>
+                        <td className="whitespace-nowrap px-6 py-4">{session.EndTime}</td>
+                        <td className="whitespace-nowrap px-6 py-4">{session.IPAddress}</td>
+                        <td className="whitespace-nowrap px-6 py-4">{session.Device}</td>
+                        <td className="whitespace-nowrap px-6 py-4">{session.Browser}</td>
+
                         
                       </tr>
                     ))}
@@ -122,4 +149,4 @@ const PagesTable = () => {
     );
 }
 
-export default PagesTable
+export default SessionsTable

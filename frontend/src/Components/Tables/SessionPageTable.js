@@ -1,4 +1,4 @@
-import React , {useState,useEffect} from 'react'
+import React,  {useState,useEffect} from 'react'
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
@@ -8,12 +8,12 @@ const boxVariant = {
 };
 
 
-const PagesTable = () => {
+const SessionPageTable = () => {
     const [data, setData] = useState([]);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
-  const control = useAnimation();
+    const control = useAnimation();
   const [ref, inView] = useInView();
 
   useEffect(() => {
@@ -24,13 +24,14 @@ const PagesTable = () => {
     }
   }, [control, inView]);
 
- 
+
+  
     useEffect(() => {
       const fetchData = async () => {
         setIsLoading(true);
         try {
           const response = await fetch(
-            `http://localhost:5000/api/getPagesData`
+            `http://localhost:5000/api/getSessionPagesData`
           );
           if (!response.ok) {
             throw new Error('Failed to fetch data');
@@ -45,22 +46,8 @@ const PagesTable = () => {
       };
   
       fetchData();
-  }, []);
+    });
   
-    const formatDuration = (duration) => {
-      const date = new Date(duration);
-      const hours = ('0' + date.getUTCHours()).slice(-2);
-      const minutes = ('0' + date.getUTCMinutes()).slice(-2);
-      const seconds = ('0' + date.getUTCSeconds()).slice(-2);
-      return `${hours}:${minutes}:${seconds}`;
-    };
-  
-    const formattedData = data.map((item) => ({
-      ...item,
-      TimeSpent: formatDuration(item.TimeSpent),
-    }));
-  
-    
   
     return (
       <motion.div
@@ -73,7 +60,7 @@ const PagesTable = () => {
     >
         <div className="mb-10 space-y-4 px-6 md:px-0">
           <h2 className="text-center text-2xl font-bold text-white sm:text-3xl md:text-4xl mt-10">
-            Pages Table
+            Session Page Table
           </h2>
         </div>
         <div className="overflow-x-auto sm:-mx-6 lg:-mx-8" style={{ overflowX: 'hidden' }}>
@@ -81,34 +68,23 @@ const PagesTable = () => {
             <div className="overflow-hidden" style={{ overflowX: 'hidden' }}>
               <div className="border rounded-lg border-white overflow-y-auto" style={{ maxHeight: '500px' }}>
                 <table className="min-w-full text-left text-sm font-light text-surface dark:text-white">
-                  <thead className="border-b border-neutral-200 font-medium dark:border-white/10 dark:bg-gray-900" style={{ position: 'sticky', top: '0' }}>
+                  <thead className="border-b border-neutral-200 font-medium dark:border-white/10" style={{ position: 'sticky', top: '0' }}>
                     <tr className="dark:bg-gray-900">
                       <th scope="col" className="px-5 py-4">
-                      Website
+                        Page Name
                       </th>
                       <th scope="col" className="px-5 py-4">
-                      Page Name
-                      </th>
-                      <th scope="col" className="px-5 py-4">
-                      Page Type
-                      </th>
-                      <th scope="col" className="px-5 py-4">
-                      Page Views
-                      </th>
-                      <th scope="col" className="px-5 py-4">
-                      Time Spent
+                        Website Name
                       </th>
                       
                     </tr>
                   </thead>
                   <tbody>
-                    {formattedData.map((page, index) => (
+                    {data.map((SessionPage, index) => (
                       <tr key={index}>
-                        <td className="whitespace-nowrap px-6 py-4">{page.Website}</td>
-                        <td className="whitespace-nowrap px-6 py-4">{page.PageName}</td>
-                        <td className="whitespace-nowrap px-6 py-4">{page.PageType}</td>
-                        <td className="whitespace-nowrap px-6 py-4">{page.PageView}</td>
-                        <td className="whitespace-nowrap px-6 py-4">{page.Time_Spent}</td>
+                        <td className="whitespace-nowrap px-6 py-4">{SessionPage.PageName}</td>
+                        <td className="whitespace-nowrap px-6 py-4">{SessionPage.WebsiteName}</td>
+                        
                         
                       </tr>
                     ))}
@@ -122,4 +98,4 @@ const PagesTable = () => {
     );
 }
 
-export default PagesTable
+export default SessionPageTable
