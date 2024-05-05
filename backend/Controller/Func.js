@@ -28,7 +28,7 @@ exports.GetAllWebsites = async (req, res) => {
     const pool = await sql.connect(config);
 
     const query = `
-    SELECT WebsiteID , WebsiteName , WebsiteURL , (Select Value from Lookup where ID=WebsiteIndustry) as WebsiteIndustry , Description , WebsiteVisits , PagePerVisit , AverageVisitDuration , BounceRate , CategoryRank , GlobalRank 
+    SELECT WebsiteID , WebsiteName , WebsiteURL , WebsiteIndustry  , Description , WebsiteVisits , PagePerVisit , AverageVisitDuration , BounceRate , CategoryRank , GlobalRank 
     from Website
     `;
 
@@ -47,7 +47,7 @@ exports.GetReferrerData = async (req, res) => {
   try {
     const pool = await sql.connect(config); // Await the connection
     const query = `
-    Select ReferrerName , (Select WebsiteName from Website where WebsiteID=Referrers.WebsiteID) as WebsiteName , (Select Value from Lookup where Referrers.ReferrerType=Lookup.ID)as ReferrerType , ReferrerURL,ReferralVisits,TrafficCount from Referrers 
+    Select ReferrerName , (Select WebsiteName from Website where WebsiteID=Referrers.WebsiteID) as WebsiteName ,  ReferrerURL , ReferrerType , Description , ReferrerViews ,TrafficCount from Referrers 
     `;
 
     const result = await pool.request().query(query);
@@ -64,7 +64,7 @@ exports.GetPagesData = async (req, res) => {
   try {
     const pool = await sql.connect(config); // Await the connection
     const query = `
-    Select (Select WebsiteName from Website where Website.WebsiteID=Pages.WebsiteID) as Website , PageName , (Select Value from Lookup where Lookup.ID=Pages.PageType) as PageType , PageViews  , TimeSpent from Pages
+    Select (Select WebsiteName from Website where Website.WebsiteID=Pages.WebsiteID) as Website , PageName , PageType  , PageView  , Time_Spent from Pages
     `;
 
     const result = await pool.request().query(query);
@@ -80,7 +80,7 @@ exports.GetPageSectionData = async (req, res) => {
   try {
     const pool = await sql.connect(config); // Await the connection
     const query = `
-    Select (Select WebsiteName from Website where Website.WebsiteID=Pages.WebsiteID) as Website , PageName , (Select Value from Lookup where Lookup.ID=Pages.PageType) as PageType , PageViews  , TimeSpent from Pages
+    Select (Select PageName from Pages where PageSection.PageId=Pages.PageID)as PageName , Time_Span , SectionCategory from PageSection
     `;
 
     const result = await pool.request().query(query);
@@ -91,6 +91,75 @@ exports.GetPageSectionData = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+exports.GetEventData = async (req, res) => {
+  try {
+    const pool = await sql.connect(config); // Await the connection
+    const query = `
+    Select Website.WebsiteName , Pages.PageName , PageSection.SectionCategory , EventTime , EventType from Events join PageSection on PageSection.PageSectionID=Events.PageSectionID join Pages on Pages.PageID = PageSection.PageID join Website on Website.WebsiteID=Pages.WebsiteID 
+    `;
+
+    const result = await pool.request().query(query);
+
+    res.json(result.recordset);
+  } catch (error) {
+    console.error("SQL Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.GetSessionPageData = async (req, res) => {
+  try {
+    const pool = await sql.connect(config); // Await the connection
+    const query = `
+    SELECT PageName, WebsiteName FROM SessionPage SP JOIN Pages P ON SP.PageID = P.PageID JOIN Website W ON W.WebsiteID = P.WebsiteID
+    `;
+
+    const result = await pool.request().query(query);
+
+    res.json(result.recordset);
+  } catch (error) {
+    console.error("SQL Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.GetSessionsData = async (req, res) => {
+  try {
+    const pool = await sql.connect(config); // Await the connection
+    const query = `
+    Select  CONCAT(FirstName , ' ' , LastName) as UserName , StartTime , EndTime , IPAddress , Device , Browser , Date from Session join Users on Users.UserID=Session.UserID
+    `;
+
+    const result = await pool.request().query(query);
+
+    res.json(result.recordset);
+  } catch (error) {
+    console.error("SQL Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+exports.GetUserData = async (req, res) => {
+  try {
+    const pool = await sql.connect(config); // Await the connection
+    const query = `
+    Select FirstName , LastName , Email , RegistrationDate, LastLoginDate , City , Country , Gender , Age , AgeCategory from Users
+    `;
+
+    const result = await pool.request().query(query);
+
+    res.json(result.recordset);
+  } catch (error) {
+    console.error("SQL Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+
+
 
 
 

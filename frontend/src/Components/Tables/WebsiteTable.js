@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from "react";
 
 
+
+
 const TrafficSection = () => {
 
 
   const [data, setData] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+
+  
 
 
 
@@ -30,7 +35,7 @@ const TrafficSection = () => {
     };
 
     fetchData();
-  });
+  }, []);
 
  
   const formatDuration = (duration) => {
@@ -49,17 +54,14 @@ const TrafficSection = () => {
   : [];
 
 
-  console.log(formattedData);
+  
 
   return (
     <div
       className="max-w-full mx-auto px-6 md:px-12 xl:px-6"
       style={{ overflowX: "hidden" }}
     >
-      <div
-        className="mb-10 space-y-4 px-6 md:px-0"
-        style={{ overflowX: "hidden" }}
-      >
+      <div className="mb-10 space-y-4 px-6 md:px-0">
         <h2 className="text-center text-2xl font-bold text-white sm:text-3xl md:text-4xl mt-10">
           Website Table
         </h2>
@@ -78,8 +80,8 @@ const TrafficSection = () => {
               style={{ maxHeight: "500px" }}
             >
               <table className="min-w-full text-left text-sm font-light text-surface dark:text-white">
-                <thead className="border-b border-neutral-200 font-medium dark:border-white/10">
-                  <tr>
+                <thead className="border-b border-neutral-200 font-medium dark:border-white/10" style={{ position: 'sticky', top: '0' }}>
+                  <tr className="dark:bg-gray-900">
                     <th scope="col" className="px-5 py-4">
                       WebsiteName
                     </th>

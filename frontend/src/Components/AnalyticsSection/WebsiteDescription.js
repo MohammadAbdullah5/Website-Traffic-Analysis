@@ -47,13 +47,13 @@ const WebsiteDescription = ({searchText}) => {
 
   return (
     <>
-      <div class="max-w-3xl mx-auto rounded-xl shadow-md overflow-hidden md:max-w-4xl pt-10 px-4 lg:px-8 rounded-sm">
-        <div class="md:flex bg-gradient-to-br from-blue-700 to-purple-400 text-white rounded-xl">
-          <div class="p-8">
-            <div class="uppercase tracking-wide text-sm font-bold">
+      <div className="max-w-3xl mx-auto rounded-xl shadow-md overflow-hidden md:max-w-4xl pt-10 px-4 lg:px-8 rounded-sm">
+        <div className="md:flex bg-gradient-to-br from-blue-700 to-purple-400 text-white rounded-xl">
+          <div className="p-8">
+            <div className="uppercase tracking-wide text-sm font-bold">
              {WebName}
             </div>
-            <p class="mt-2">{description}</p>
+            <p className="mt-2">{description}</p>
           </div>
         </div>
       </div>
