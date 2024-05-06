@@ -89,7 +89,7 @@ const SessionsTable = () => {
             Sessions Table
           </h2>
         </div>
-        <div className="overflow-x-auto sm:-mx-6 lg:-mx-8" style={{ overflowX: 'hidden' }}>
+        <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8" style={{ overflowX: 'hidden' }}>
             <div className="overflow-hidden" style={{ overflowX: 'hidden' }}>
               <div className="border rounded-lg border-white overflow-y-auto" style={{ maxHeight: '500px' }}>

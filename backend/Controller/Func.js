@@ -4,24 +4,63 @@ const config = require("../Database/Config");
 exports.GetAllData = async (webURL, res) => {
   try {
     const pool = await sql.connect(config); // Await the connection
-   
-    const query = `
-      SELECT WebsiteName , Description , WebsiteVisits , PagePerVisit , AverageVisitDuration , BounceRate , CategoryRank , GlobalRank 
+    const responseData = {};
+
+    // Query to fetch Website data based on webURL
+    const websiteQuery = `
+      SELECT WebsiteName, WebsiteURL , WebsiteIndustry, Description, WebsiteVisits, PagePerVisit, AverageVisitDuration, BounceRate, CategoryRank, GlobalRank 
       FROM Website 
-      WHERE WebsiteURL = @webURL 
+      WHERE WebsiteURL = @webURL
     `;
 
-    const result = await pool
-      .request()
-      .input("webURL", sql.VarChar, webURL)
-      .query(query);
+    const websiteResult = await pool.request()
+                                     .input("webURL", sql.VarChar, webURL)
+                                     .query(websiteQuery);
 
-    res.json(result.recordset);
+    
+
+    // Query to fetch all data from another table (replace this with your actual query)
+    const referrerQuery = `Select ReferrerName , (Select WebsiteName from Website where WebsiteID=Referrers.WebsiteID) as WebsiteName ,  ReferrerURL , ReferrerType , Description , ReferrerViews ,TrafficCount from Referrers where WebsiteID=(Select WebsiteID FROM Website where WebsiteURL=@webURL)`;
+    const pagesQuery = `Select (Select WebsiteName from Website where Website.WebsiteID=Pages.WebsiteID) as Website , PageName , PageType  , PageView  , Time_Spent from Pages where WebsiteID=(Select WebsiteID FROM Website where WebsiteURL=@webURL)`;
+    const pageSectionQuery = `SELECT (SELECT PageName FROM Pages WHERE PageSection.PageId = Pages.PageID) AS PageName, Time_Span, SectionCategory FROM PageSection WHERE PageSection.PageId IN (SELECT PageID FROM Pages WHERE WebsiteID IN (SELECT WebsiteID FROM Website WHERE WebsiteURL = @webURL));`;
+    const eventsQuery = `Select Website.WebsiteName , Pages.PageName , PageSection.SectionCategory , EventTime , EventType from Events join PageSection on PageSection.PageSectionID=Events.PageSectionID join Pages on Pages.PageID = PageSection.PageID join Website on Website.WebsiteID=Pages.WebsiteID WHERE Website.WebsiteURL = @webURL`
+    const sessionPagesQuery = `SELECT PageName, WebsiteName FROM SessionPage SP JOIN Pages P ON SP.PageID = P.PageID JOIN Website W ON W.WebsiteID = P.WebsiteID where W.WebsiteURL = @webURL`
+    const sessionQuery = `SELECT CONCAT(FirstName, ' ', LastName) AS UserName, StartTime, EndTime, IPAddress, Device, Browser, Date FROM Session JOIN Users ON Users.UserID = Session.UserID WHERE Users.UserID IN (SELECT UserID FROM Session WHERE SessionID IN (SELECT SessionID FROM SessionPage WHERE PageID IN (SELECT PageID FROM Pages WHERE WebsiteID IN (SELECT WebsiteID FROM Website WHERE WebsiteURL = @webURL))));`
+    const usersQuery = `SELECT FirstName, LastName, Email, RegistrationDate, LastLoginDate, City, Country, Gender, Age, AgeCategory FROM Users WHERE UserID IN (SELECT UserID FROM Session WHERE SessionID IN (SELECT SessionID FROM SessionPage WHERE PageID IN (SELECT PageID FROM Pages WHERE WebsiteID IN (SELECT WebsiteID FROM Website WHERE WebsiteURL = @webURL))));`
+
+    const referrerData = await pool.request().input("webURL", sql.VarChar, webURL).query(referrerQuery);
+    const pagesData = await pool.request().input("webURL", sql.VarChar, webURL).query(pagesQuery);
+    const pageSectionData = await pool.request().input("webURL", sql.VarChar, webURL).query(pageSectionQuery);
+    const eventsData = await pool.request().input("webURL", sql.VarChar, webURL).query(eventsQuery);
+    const sessionPagesData = await pool.request().input("webURL", sql.VarChar, webURL).query(sessionPagesQuery);
+    const sessionData = await pool.request().input("webURL", sql.VarChar, webURL).query(sessionQuery);
+    const usersData = await pool.request().input("webURL", sql.VarChar, webURL).query(usersQuery);
+
+
+
+
+    responseData.websiteData = websiteResult.recordset;
+    responseData.referrer = referrerData.recordset;
+    responseData.pages = pagesData.recordset;
+    responseData.pageSection = pageSectionData.recordset;
+    responseData.events = eventsData.recordset;
+    responseData.sessionPages = sessionPagesData.recordset;
+    responseData.sessions= sessionData.recordset;
+    responseData.users= usersData.recordset;
+
+
+
+
+
+
+
+    res.json(responseData);
   } catch (error) {
     console.error("SQL Error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 exports.GetAllWebsites = async (req, res) => {
   try {

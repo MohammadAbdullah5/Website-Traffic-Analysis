@@ -17,8 +17,8 @@ router.get('/api/getWebsiteData' , (req , res) =>{
 })
 
 router.get('/api/getRefferrerData' , (req , res) =>{
-    
-    return  GetReferrerData(req, res);
+    const {webURL} = req.query;
+    return  GetReferrerData(webURL, res);
 })
 
 
