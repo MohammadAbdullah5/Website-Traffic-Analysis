@@ -1,40 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { DotLoader } from "react-spinners";
+import { default as api } from "../Store/apiSlice";
 
 const TrafficSection = ({ searchText }) => {
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(
-          `http://localhost:5000/api/getData?webURL=${searchText}`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch rank data");
-        }
-        const data = await response.json();
-        setData(data);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
 
-    fetchData();
-  }, [searchText]);
+  const { data, isFetching, isSuccess, isError } = api.useGetAllDataQuery(searchText);
 
-  const websiteData = data && data.websiteData && data.websiteData.length > 0 ? data.websiteData[0] : null;
-  const rank = websiteData ? websiteData.GlobalRank : null;
-  const webVisits = websiteData ? websiteData.WebsiteVisits : null;
-  const bounceRate = websiteData ? websiteData.BounceRate : null;
-  const pagesVisit = websiteData ? websiteData.PagePerVisit : null;
-  const IndustryRank = websiteData ? websiteData.CategoryRank : null;
-  const avgDuration = websiteData ? websiteData.AverageVisitDuration : null;
+  
+    const websiteData = data && data.websiteData && data.websiteData.length > 0 ? data.websiteData[0] : null;
+    const rank = websiteData ? websiteData.GlobalRank : null;
+    const webVisits = websiteData ? websiteData.WebsiteVisits : null;
+    const bounceRate = websiteData ? websiteData.BounceRate : null;
+    const pagesVisit = websiteData ? websiteData.PagePerVisit : null;
+    const IndustryRank = websiteData ? websiteData.CategoryRank : null;
+    const avgDuration = websiteData ? websiteData.AverageVisitDuration : null;
+  
 
   function formatLargeNumber(number) {
     const suffixes = ["", "K", "M", "B", "T"];
@@ -51,7 +32,7 @@ const TrafficSection = ({ searchText }) => {
 
   return (
     <>
-      {isLoading && (
+      {isFetching && (
         <div className="dark:bg-gray-800 fixed top-0 left-0 w-full h-full flex justify-center items-center">
           <div className="dark:bg-transparent">
             <div className="flex flex-col items-center aspect-auto p-4 sm:p-8 border rounded-3xl bg-gray-800 border-gray-700 shadow-gray-600/10 shadow-none m-2 flex-1 max-w-md">
@@ -61,7 +42,7 @@ const TrafficSection = ({ searchText }) => {
         </div>
       )}
 
-{!isLoading && data && data.websiteData.length === 0 && (
+{!isError && data && data.websiteData.length === 0 && (
   <div className="dark:bg-gray-800 text-white text-center py-4">
     <h2 className="text-2xl md:text-3xl font-semibold mb-2">
       The data you are looking for isn't available
@@ -70,7 +51,7 @@ const TrafficSection = ({ searchText }) => {
   </div>
 )}
 
-      {!isLoading && websiteData && (
+      {!isFetching && websiteData && (
         <div className="dark:bg-gray-800">
           <div className="dark:bg-transparent">
             <div className="max-w-3xl mx-auto rounded-xl shadow-md overflow-hidden md:max-w-4xl pt-10 px-4 lg:px-8 rounded-sm">
@@ -169,9 +150,9 @@ const TrafficSection = ({ searchText }) => {
         </div>
       )}
 
-      {!isLoading && error && (
+      {isError  && (
         <div className="text-red-500 text-center mt-4">
-          Failed to fetch data: {error}
+          Failed to fetch data: {isError}
         </div>
       )}
     </>

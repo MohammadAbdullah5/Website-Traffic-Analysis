@@ -1,51 +1,40 @@
-import React , {useState,useEffect} from 'react'
-import { motion, useAnimation } from "framer-motion";
-import { useInView } from "react-intersection-observer";
+import React from 'react'
+import { default as api } from "../Store/apiSlice";
+import { DotLoader } from "react-spinners";
 
-
-const boxVariant = {
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } },
-  hidden: { opacity: 0, scale: 0 },
-};
 
 const SessionsTable = () => {
-    const [data, setData] = useState([]);
-    const [error, setError] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
 
-    const control = useAnimation();
-    const [ref, inView] = useInView();
-  
-    useEffect(() => {
-      if (inView) {
-        control.start("visible");
-      } else {
-        control.start("hidden");
-      }
-    }, [control, inView]);
+  const { data, isFetching, isSuccess, isError } = api.useGetSessionsDataQuery();
 
- 
-    useEffect(() => {
-      const fetchData = async () => {
-        setIsLoading(true);
-        try {
-          const response = await fetch(
-            `http://localhost:5000/api/getSessionsData`
-          );
-          if (!response.ok) {
-            throw new Error('Failed to fetch data');
-          }
-          const responseData = await response.json();
-          setData(responseData);
-          setIsLoading(false);
-        } catch (error) {
-          setError(error.message);
-          setIsLoading(false);
-        }
-      };
+  if(isFetching)
+    {
+      return(
+      <>
+        
+          <div className="dark:bg-gray-800 fixed top-0 left-0 w-full h-full flex justify-center items-center">
+            <div className="dark:bg-transparent">
+              <div className="flex flex-col items-center aspect-auto p-4 sm:p-8 border rounded-3xl bg-gray-800 border-gray-700 shadow-gray-600/10 shadow-none m-2 flex-1 max-w-md">
+                <DotLoader color="#36d7b7" size={60} />
+              </div>
+            </div>
+          </div>
+          </>
+      )
+        
+    }
   
-      fetchData();
-    });
+    if(isError)
+    {
+      return (
+        <div className="text-red-500 text-center mt-4">
+            Failed to fetch data: {isError}
+          </div>
+      )
+  
+    }
+
+
   
     const formatDuration = (duration) => {
       const date = new Date(duration);
@@ -65,24 +54,10 @@ const SessionsTable = () => {
   };
 
   
-    const formattedData = data.map((item) => ({
-      ...item,
-      StartTime: formatDuration(item.StartTime),
-      EndTime: formatDuration(item.EndTime),
-      Date : formatDate(item.Date)
-
-    }));
-  
-    
-  
     return (
-      <motion.div
+      <div
       className="max-w-full mx-auto px-6 md:px-12 xl:px-6 box"
       style={{ overflowX: "hidden" }}
-      ref={ref}
-      variants={boxVariant}
-      initial="hidden"
-      animate={control}
     >
         <div className="mb-10 space-y-4 px-6 md:px-0">
           <h2 className="text-center text-2xl font-bold text-white sm:text-3xl md:text-4xl mt-10">
@@ -125,13 +100,13 @@ const SessionsTable = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {formattedData.map((session, index) => (
+                    {isSuccess && data.map((session, index) => (
                       <tr key={index}>
                         <td className="whitespace-nowrap px-6 py-4">{session.UserName}</td>
-                        <td className="whitespace-nowrap px-6 py-4">{session.Date}</td>
+                        <td className="whitespace-nowrap px-6 py-4">{formatDate(session.Date)}</td>
 
-                        <td className="whitespace-nowrap px-6 py-4">{session.StartTime}</td>
-                        <td className="whitespace-nowrap px-6 py-4">{session.EndTime}</td>
+                        <td className="whitespace-nowrap px-6 py-4">{formatDuration(session.StartTime)}</td>
+                        <td className="whitespace-nowrap px-6 py-4">{formatDuration(session.EndTime)}</td>
                         <td className="whitespace-nowrap px-6 py-4">{session.IPAddress}</td>
                         <td className="whitespace-nowrap px-6 py-4">{session.Device}</td>
                         <td className="whitespace-nowrap px-6 py-4">{session.Browser}</td>
@@ -145,7 +120,7 @@ const SessionsTable = () => {
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
     );
 }
 

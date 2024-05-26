@@ -1,50 +1,49 @@
 import React , {useState,useEffect} from 'react'
+import { default as api } from "../Store/apiSlice";
 
 const Tables = ({searchText}) => {
-    const [data, setData] = useState([]);
-    const [error, setError] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
+    
     const webURL = searchText
 
-
-  
-  
-    useEffect(() => {
-      const fetchData = async () => {
-        setIsLoading(true);
-        try {
-            const response = await fetch(
-                `http://localhost:5000/api/getData?webURL=${webURL}`
-              );
-          if (!response.ok) {
-            throw new Error('Failed to fetch data');
-          }
-          const responseData = await response.json();
-          setData(responseData);
-          setIsLoading(false);
-        } catch (error) {
-          setError(error.message);
-          setIsLoading(false);
-        }
-      };
-  
-      fetchData();
-    }, []);
-
-
-    console.log(data)
-
-
+    const { data, isFetching, isSuccess, isError } = api.useGetAllDataQuery(webURL);
     
-  
+
    
-    const formatDuration = (duration) => {
-      const date = new Date(duration);
-      const hours = ("0" + date.getUTCHours()).slice(-2);
-      const minutes = ("0" + date.getUTCMinutes()).slice(-2);
-      const seconds = ("0" + date.getUTCSeconds()).slice(-2);
-      return `${hours}:${minutes}:${seconds}`;
+    const formatDuration = (timestamp) => {
+      try {
+        const date = new Date(timestamp);
+    
+        // Log the raw date to ensure it is parsed correctly
+        console.log('Parsed date:', date);
+    
+        // Ensure the date is valid
+        if (isNaN(date.getTime())) {
+          console.error('Invalid date:', timestamp);
+          return '00:00:00';
+        }
+    
+        const hrs = date.getUTCHours();
+        const mins = date.getUTCMinutes();
+        const secs = date.getUTCSeconds();
+    
+        // Log the extracted hours, minutes, and seconds
+        console.log(`Hours: ${hrs}, Minutes: ${mins}, Seconds: ${secs}`);
+    
+        // Return the formatted time as HH:MM:SS
+        return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      } catch (error) {
+        console.error('Error parsing timestamp:', error);
+        return '00:00:00';
+      }
     };
+
+
+    const formatDuration2 = (durationString) => {
+      const [datePart, timePart] = durationString.split(' ');
+      const [hours, minutes] = timePart.split(':');
+      return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:00`;
+    };
+    
 
 
     const formatDate = (duration) => {
@@ -121,7 +120,7 @@ const Tables = ({searchText}) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.websiteData && data.websiteData.map((website, index) => (
+                    {isSuccess && data.websiteData && data.websiteData.map((website, index) => (
                       <tr key={index}>
                         <td className="whitespace-nowrap px-6 py-4">
                           {website.WebsiteName}
@@ -160,7 +159,7 @@ const Tables = ({searchText}) => {
         </div>
       </div>
 
-      {/* ReferrerSection */}
+      
       <div
       className="max-w-full mx-auto px-6 md:px-12 xl:px-6 box"
       style={{ overflowX: "hidden" }}
@@ -211,7 +210,7 @@ const Tables = ({searchText}) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.referrer && data.referrer.map((referrer, index) => (
+                  {isSuccess && data.referrer && data.referrer.map((referrer, index) => (
                     <tr key={index}>
                       <td className="whitespace-nowrap px-6 py-4">
                         {referrer.ReferrerName}
@@ -241,7 +240,7 @@ const Tables = ({searchText}) => {
       </div>
     </div>
 
-    {/* Pages tABLE */}
+    
     <div
       className="max-w-full mx-auto px-6 md:px-12 xl:px-6 box"
       style={{ overflowX: "hidden" }}
@@ -277,13 +276,13 @@ const Tables = ({searchText}) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.pages && data.pages.map((page, index) => (
+                    {isSuccess && data.pages && data.pages.map((page, index) => (
                       <tr key={index}>
                         <td className="whitespace-nowrap px-6 py-4">{page.Website}</td>
                         <td className="whitespace-nowrap px-6 py-4">{page.PageName}</td>
                         <td className="whitespace-nowrap px-6 py-4">{page.PageType}</td>
                         <td className="whitespace-nowrap px-6 py-4">{page.PageView}</td>
-                        <td className="whitespace-nowrap px-6 py-4">{formatDuration(page.Time_Spent)}</td>
+                        <td className="whitespace-nowrap px-6 py-4">{formatDuration2(page.Time_Spent)}</td>
                         
                       </tr>
                     ))}
@@ -295,7 +294,7 @@ const Tables = ({searchText}) => {
         </div>
       </div>
 
-      {/* Page Section Table */}
+      
 
 
       <div
@@ -327,10 +326,10 @@ const Tables = ({searchText}) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.pageSection && data.pageSection.map((pageSection, index) => (
+                    {isSuccess && data.pageSection && data.pageSection.map((pageSection, index) => (
                       <tr key={index}>
                         <td className="whitespace-nowrap px-6 py-4">{pageSection.PageName}</td>
-                        <td className="whitespace-nowrap px-6 py-4">{formatDuration(pageSection.Time_Span)}</td>
+                        <td className="whitespace-nowrap px-6 py-4">{formatDuration2(pageSection.Time_Span)}</td>
                         <td className="whitespace-nowrap px-6 py-4">{pageSection.SectionCategory}</td>
                         
                         
@@ -346,7 +345,7 @@ const Tables = ({searchText}) => {
 
 
 
-      {/* Events Table */}
+      
       <div
       className="max-w-full mx-auto px-6 md:px-12 xl:px-6 box"
       style={{ overflowX: "hidden" }}
@@ -393,7 +392,7 @@ const Tables = ({searchText}) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.events && data.events.map((event, index) => (
+                  {isSuccess && data.events && data.events.map((event, index) => (
                     <tr key={index}>
                       <td className="whitespace-nowrap px-6 py-4">
                         {event.WebsiteName}
@@ -421,7 +420,7 @@ const Tables = ({searchText}) => {
     </div>
 
 
-    {/* Sessions Table */}
+    
     <div
       className="max-w-full mx-auto px-6 md:px-12 xl:px-6 box"
       style={{ overflowX: "hidden" }}
@@ -467,7 +466,7 @@ const Tables = ({searchText}) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.sessions && data.sessions.map((session, index) => (
+                    {isSuccess && data.sessions && data.sessions.map((session, index) => (
                       <tr key={index}>
                         <td className="whitespace-nowrap px-6 py-4">{session.UserName}</td>
                         <td className="whitespace-nowrap px-6 py-4">{formatDate(session.Date)}</td>
@@ -490,7 +489,7 @@ const Tables = ({searchText}) => {
       </div>
 
 
-      {/* SessionPages Table */}
+      
 
       <div
       className="max-w-full mx-auto px-6 md:px-12 xl:px-6 box"
@@ -518,7 +517,7 @@ const Tables = ({searchText}) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.sessionPages && data.sessionPages.map((SessionPage, index) => (
+                    {isSuccess && data.sessionPages && data.sessionPages.map((SessionPage, index) => (
                       <tr key={index}>
                         <td className="whitespace-nowrap px-6 py-4">{SessionPage.PageName}</td>
                         <td className="whitespace-nowrap px-6 py-4">{SessionPage.WebsiteName}</td>
@@ -535,7 +534,7 @@ const Tables = ({searchText}) => {
       </div>
 
 
-      {/* Users */}
+      
       <div
       className="max-w-full mx-auto px-6 md:px-12 xl:px-6 box"
       style={{ overflowX: "hidden" }}
@@ -598,7 +597,7 @@ const Tables = ({searchText}) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.users && data.users.map((user, index) => (
+                  {isSuccess && data.users && data.users.map((user, index) => (
                     <tr key={index}>
                       <td className="whitespace-nowrap px-6 py-4">
                         {user.FirstName}
