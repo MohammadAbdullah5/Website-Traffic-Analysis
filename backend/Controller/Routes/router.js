@@ -5,10 +5,10 @@ const router = express.Router();
 
 
 
-router.get('/api/getData' , (req , res) =>{
-    const {webURL} = req.query;
+router.get('/api/getData/:webname' , (req , res) =>{
     
-    return  GetAllData(webURL, res);
+    
+    return  GetAllData(req, res);
 })
 
 router.get('/api/getWebsiteData' , (req , res) =>{
@@ -17,8 +17,8 @@ router.get('/api/getWebsiteData' , (req , res) =>{
 })
 
 router.get('/api/getRefferrerData' , (req , res) =>{
-    
-    return  GetReferrerData(req, res);
+    const {webURL} = req.query;
+    return  GetReferrerData(webURL, res);
 })
 
 

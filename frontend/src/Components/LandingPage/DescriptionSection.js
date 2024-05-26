@@ -25,7 +25,13 @@ const DescriptionSection = () => {
           <img src="https://www.svgrepo.com/show/164986/logo.svg" loading="lazy" width="200" height="200"className="w-12 h-12 rounded-full" style={{color:"transparent"}}/>
           <div className="space-y-2">
             <h5 className="text-xl font-semibold text-white transition group-hover:text-secondary">Team</h5>
-            <p className="text-gray-300">We are a team of developers.</p>
+            <ul>
+              <li className="text-gray-300">Muhammad Ahmad Mughal</li>
+              <li className="text-gray-300">Muhammad Saad Akmal</li>
+              <li className="text-gray-300">Muhammad Robass Atif</li>
+              <li className="text-gray-300">Mohammad Abdullah Gondal</li>
+
+            </ul>
           </div>
         </div>
       </div>

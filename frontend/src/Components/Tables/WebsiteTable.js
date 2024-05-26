@@ -1,41 +1,44 @@
-import React, { useEffect, useState } from "react";
-
+import React from "react";
+import { default as api } from "../Store/apiSlice";
+import { DotLoader } from "react-spinners";
 
 
 
 const TrafficSection = () => {
 
 
-  const [data, setData] = useState([]);
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+ 
+  const { data, isFetching, isSuccess, isError } = api.useGetWebsiteDataQuery();
+
+  if(isFetching)
+    {
+      return(
+      <>
+        
+          <div className="dark:bg-gray-800 fixed top-0 left-0 w-full h-full flex justify-center items-center">
+            <div className="dark:bg-transparent">
+              <div className="flex flex-col items-center aspect-auto p-4 sm:p-8 border rounded-3xl bg-gray-800 border-gray-700 shadow-gray-600/10 shadow-none m-2 flex-1 max-w-md">
+                <DotLoader color="#36d7b7" size={60} />
+              </div>
+            </div>
+          </div>
+          </>
+      )
+        
+    }
+  
+    if(isError)
+    {
+      return (
+        <div className="text-red-500 text-center mt-4">
+            Failed to fetch data: {isError}
+          </div>
+      )
+  
+    }
 
 
   
-
-
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(
-          `http://localhost:5000/api/getWebsiteData`
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch data');
-        }
-        const responseData = await response.json();
-        setData(responseData);
-        setIsLoading(false);
-      } catch (error) {
-        setError(error.message);
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
 
  
   const formatDuration = (duration) => {
@@ -46,12 +49,14 @@ const TrafficSection = () => {
     return `${hours}:${minutes}:${seconds}`;
   };
 
+    
   const formattedData = Array.isArray(data)
-  ? data.map((item) => ({
-      ...item,
-      AverageVisitDuration: formatDuration(item.AverageVisitDuration),
-    }))
-  : [];
+    ? data.map((item) => ({
+        ...item,
+        AverageVisitDuration: formatDuration(item.AverageVisitDuration),
+      }))
+    : [];
+    
 
 
   
@@ -68,7 +73,7 @@ const TrafficSection = () => {
       </div>
       <div
         className="overflow-x-auto sm:-mx-6 lg:-mx-8"
-        style={{ overflowX: "hidden" }}
+        
       >
         <div
           className="inline-block min-w-full py-2 sm:px-6 lg:px-8"
@@ -112,7 +117,7 @@ const TrafficSection = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {formattedData.map((website, index) => (
+                  {isSuccess && formattedData.map((website, index) => (
                     <tr key={index}>
                       <td className="whitespace-nowrap px-6 py-4">
                         {website.WebsiteName}

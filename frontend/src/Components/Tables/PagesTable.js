@@ -1,82 +1,64 @@
-import React , {useState,useEffect} from 'react'
-import { motion, useAnimation } from "framer-motion";
-import { useInView } from "react-intersection-observer";
+import React  from 'react'
+import { default as api } from "../Store/apiSlice";
+import { DotLoader } from "react-spinners";
 
-const boxVariant = {
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } },
-  hidden: { opacity: 0, scale: 0 },
-};
+
 
 
 const PagesTable = () => {
-    const [data, setData] = useState([]);
-    const [error, setError] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
+  
+  
+  const { data, isFetching, isSuccess, isError } = api.useGetPagesDataQuery();
 
-  const control = useAnimation();
-  const [ref, inView] = useInView();
-
-  useEffect(() => {
-    if (inView) {
-      control.start("visible");
-    } else {
-      control.start("hidden");
+  if(isFetching)
+    {
+      return(
+      <>
+        
+          <div className="dark:bg-gray-800 fixed top-0 left-0 w-full h-full flex justify-center items-center">
+            <div className="dark:bg-transparent">
+              <div className="flex flex-col items-center aspect-auto p-4 sm:p-8 border rounded-3xl bg-gray-800 border-gray-700 shadow-gray-600/10 shadow-none m-2 flex-1 max-w-md">
+                <DotLoader color="#36d7b7" size={60} />
+              </div>
+            </div>
+          </div>
+          </>
+      )
+        
     }
-  }, [control, inView]);
+  
+    if(isError)
+    {
+      return (
+        <div className="text-red-500 text-center mt-4">
+            Failed to fetch data: {isError}
+          </div>
+      )
+  
+    }
+  
+  
+  const formatDuration = (durationString) => {
+    const [datePart, timePart] = durationString.split(' ');
+    const [hours, minutes] = timePart.split(':');
+    return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:00`;
+  };
 
- 
-    useEffect(() => {
-      const fetchData = async () => {
-        setIsLoading(true);
-        try {
-          const response = await fetch(
-            `http://localhost:5000/api/getPagesData`
-          );
-          if (!response.ok) {
-            throw new Error('Failed to fetch data');
-          }
-          const responseData = await response.json();
-          setData(responseData);
-          setIsLoading(false);
-        } catch (error) {
-          setError(error.message);
-          setIsLoading(false);
-        }
-      };
   
-      fetchData();
-  }, []);
-  
-    const formatDuration = (duration) => {
-      const date = new Date(duration);
-      const hours = ('0' + date.getUTCHours()).slice(-2);
-      const minutes = ('0' + date.getUTCMinutes()).slice(-2);
-      const seconds = ('0' + date.getUTCSeconds()).slice(-2);
-      return `${hours}:${minutes}:${seconds}`;
-    };
-  
-    const formattedData = data.map((item) => ({
-      ...item,
-      TimeSpent: formatDuration(item.TimeSpent),
-    }));
   
     
   
     return (
-      <motion.div
+      <div
       className="max-w-full mx-auto px-6 md:px-12 xl:px-6 box"
       style={{ overflowX: "hidden" }}
-      ref={ref}
-      variants={boxVariant}
-      initial="hidden"
-      animate={control}
     >
         <div className="mb-10 space-y-4 px-6 md:px-0">
           <h2 className="text-center text-2xl font-bold text-white sm:text-3xl md:text-4xl mt-10">
             Pages Table
           </h2>
         </div>
-        <div className="overflow-x-auto sm:-mx-6 lg:-mx-8" style={{ overflowX: 'hidden' }}>
+        <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8" style={{ overflowX: 'hidden' }}>
             <div className="overflow-hidden" style={{ overflowX: 'hidden' }}>
               <div className="border rounded-lg border-white overflow-y-auto" style={{ maxHeight: '500px' }}>
@@ -102,13 +84,13 @@ const PagesTable = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {formattedData.map((page, index) => (
+                    {isSuccess && data.map((page, index) => (
                       <tr key={index}>
                         <td className="whitespace-nowrap px-6 py-4">{page.Website}</td>
                         <td className="whitespace-nowrap px-6 py-4">{page.PageName}</td>
                         <td className="whitespace-nowrap px-6 py-4">{page.PageType}</td>
                         <td className="whitespace-nowrap px-6 py-4">{page.PageView}</td>
-                        <td className="whitespace-nowrap px-6 py-4">{page.Time_Spent}</td>
+                        <td className="whitespace-nowrap px-6 py-4">{formatDuration(page.Time_Spent)}</td>
                         
                       </tr>
                     ))}
@@ -118,7 +100,7 @@ const PagesTable = () => {
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
     );
 }
 

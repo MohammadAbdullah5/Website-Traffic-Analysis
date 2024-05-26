@@ -1,58 +1,45 @@
 import React, { useEffect, useState } from "react";
-import { motion, useAnimation } from "framer-motion";
-import { useInView } from "react-intersection-observer";
+import { default as api } from "../Store/apiSlice";
+import { DotLoader } from "react-spinners";
 
-const boxVariant = {
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } },
-  hidden: { opacity: 0, scale: 0 },
-};
 
 const ReferrerTable = () => {
-  const [data, setData] = useState([]);
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const control = useAnimation();
-  const [ref, inView] = useInView();
+  const { data, isFetching, isSuccess, isError } = api.useGetReferrerDataQuery();
 
-  useEffect(() => {
-    if (inView) {
-      control.start("visible");
-    } else {
-      control.start("hidden");
+  if(isFetching)
+    {
+      return(
+      <>
+        
+          <div className="dark:bg-gray-800 fixed top-0 left-0 w-full h-full flex justify-center items-center">
+            <div className="dark:bg-transparent">
+              <div className="flex flex-col items-center aspect-auto p-4 sm:p-8 border rounded-3xl bg-gray-800 border-gray-700 shadow-gray-600/10 shadow-none m-2 flex-1 max-w-md">
+                <DotLoader color="#36d7b7" size={60} />
+              </div>
+            </div>
+          </div>
+          </>
+      )
+        
     }
-  }, [control, inView]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(
-          `http://localhost:5000/api/getRefferrerData`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
-        }
-        const responseData = await response.json();
-        setData(responseData);
-        setIsLoading(false);
-      } catch (error) {
-        setError(error.message);
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  
+    if(isError)
+    {
+      return (
+        <div className="text-red-500 text-center mt-4">
+            Failed to fetch data: {isError}
+          </div>
+      )
+  
+    }
+  
 
   return (
-    <motion.div
+    <div
       className="max-w-full mx-auto px-6 md:px-12 xl:px-6 box"
       style={{ overflowX: "hidden" }}
-      ref={ref}
-      variants={boxVariant}
-      initial="hidden"
-      animate={control}
+      
     >
       <div className="mb-10 space-y-4 px-6 md:px-0">
         <h2 className="text-center text-2xl font-bold text-white sm:text-3xl md:text-4xl mt-10">
@@ -61,7 +48,7 @@ const ReferrerTable = () => {
       </div>
       <div
         className="overflow-x-auto sm:-mx-6 lg:-mx-8"
-        style={{ overflowX: "hidden" }}
+        
       >
         <div
           className="inline-block min-w-full py-2 sm:px-6 lg:px-8"
@@ -100,7 +87,7 @@ const ReferrerTable = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((referrer, index) => (
+                  {isSuccess && data.map((referrer, index) => (
                     <tr key={index}>
                       <td className="whitespace-nowrap px-6 py-4">
                         {referrer.ReferrerName}
@@ -128,7 +115,7 @@ const ReferrerTable = () => {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
